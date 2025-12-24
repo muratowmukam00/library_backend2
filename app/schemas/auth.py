@@ -20,3 +20,6 @@ class CurrentUser(BaseModel):
 class LoginRequest(BaseModel):
     email: EmailStr
     password: str
+
+class LogoutRequest(BaseModel):
+    refresh_token: str

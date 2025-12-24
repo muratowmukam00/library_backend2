@@ -1,16 +1,20 @@
 # app/api/auth.py
+import uuid
+
 from fastapi import APIRouter, Depends, HTTPException
-from fastapi.security import OAuth2PasswordRequestForm
 
-from app.models.user import User, UserRole
+from app.models.user import UserRole
 from app.schemas.user import UserCreate, UserRead
-from app.schemas.auth import TokenResponse, RefreshTokenRequest, LoginRequest
+from app.schemas.auth import TokenResponse, RefreshTokenRequest, LoginRequest, LogoutRequest
 from app.services.user_service import UserService
+from app.services.redis_service import RedisService
 from app.core import security
-from app.core.deps import get_user_service
+from app.core.deps import get_user_service, get_current_user
+from app.core.config import settings
+
 router = APIRouter()
-
-
+redis_service = RedisService()
+expire_seconds = settings.REFRESH_TOKEN_EXPIRE_MINUTES * 60
 @router.post("/register", response_model=UserRead)
 def register(user_in: UserCreate, user_service: UserService = Depends(get_user_service)):
     role = UserRole.user
@@ -30,7 +34,7 @@ def register(user_in: UserCreate, user_service: UserService = Depends(get_user_s
 
 
 @router.post("/login", response_model=TokenResponse)
-def login(
+async def login(
     login_data: LoginRequest,
     user_service: UserService = Depends(get_user_service)
 ):
@@ -40,22 +44,48 @@ def login(
 
     access_token = security.create_access_token(str(user.id))
     refresh_token = security.create_refresh_token(str(user.id))
+
+    redis_key = f"refresh:{refresh_token}"
+
+    await redis_service.set(redis_key, str(user.id), expire=expire_seconds)
+
     return TokenResponse(access_token=access_token, refresh_token=refresh_token)
 
 
-# Refresh token endpoint
 @router.post("/refresh", response_model=TokenResponse)
-def refresh_token(refresh_request: RefreshTokenRequest):
+async def refresh_token(refresh_request: RefreshTokenRequest):
     try:
-        payload = security.decode_token(refresh_request.refresh_token)
-        user_id = payload.get("sub")
+        redis_key = f"refresh:{refresh_request.refresh_token}"
+        token_exists = await redis_service.exists(redis_key)
+        if not token_exists:
+            raise HTTPException(status_code=401, detail="Refresh token not found or expired")
+
+        user_id = await redis_service.get(redis_key)
         access_token = security.create_access_token(user_id)
-        refresh_token = security.create_refresh_token(user_id)
-        return TokenResponse(access_token=access_token, refresh_token=refresh_token)
+        new_refresh_token = security.create_refresh_token(user_id)
+
+        await redis_service.delete(redis_key)
+        await redis_service.set(f"refresh:{new_refresh_token}", user_id, expire=expire_seconds)
+
+        return TokenResponse(access_token=access_token, refresh_token=new_refresh_token)
+
     except ValueError as e:
         raise HTTPException(status_code=401, detail=str(e))
 
 
 @router.post("/logout")
-def logout():
+async def logout(
+    data: LogoutRequest,
+):
+    redis_key = f"refresh:{data.refresh_token}"
+
+    token_exists = await redis_service.exists(redis_key)
+    if token_exists:
+        await redis_service.delete(redis_key)
+
     return {"msg": "Successfully logged out"}
+
+@router.get("/me")
+def me(current_user = Depends(get_current_user)):
+    return current_user
+

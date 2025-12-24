@@ -22,7 +22,6 @@ class UserRead(BaseModel):
 class UserCreate(BaseModel):
     email: EmailStr
     password:  constr(min_length=8, max_length=50)
-    role: Optional[UserRole] = UserRole.user
 
 class UserUpdate(BaseModel):
     email: Optional[EmailStr]

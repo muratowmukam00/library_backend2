@@ -39,7 +39,7 @@ class Settings(BaseSettings):
     # Redis
     # ------------------
     REDIS_HOST: str = "localhost"
-    REDIS_PORT: int = 6379
+    REDIS_PORT: int = 6380
     REDIS_DB: int = 0
 
     class Config:
@@ -51,5 +51,9 @@ class Settings(BaseSettings):
         if self.DATABASE_URL:
             return str(self.DATABASE_URL)
         return f"postgresql+psycopg2://{self.POSTGRES_USER}:{self.POSTGRES_PASSWORD}@{self.POSTGRES_HOST}:{self.POSTGRES_PORT}/{self.POSTGRES_DB}"
+
+    @property
+    def REDIS_URL(self) -> str:
+        return f"redis://{self.REDIS_HOST}:{self.REDIS_PORT}/{self.REDIS_DB}"
 
 settings = Settings()
