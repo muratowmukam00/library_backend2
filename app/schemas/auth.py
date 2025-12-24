@@ -16,3 +16,7 @@ class CurrentUser(BaseModel):
     id: str
     email: EmailStr
     role: str
+
+class LoginRequest(BaseModel):
+    email: EmailStr
+    password: str

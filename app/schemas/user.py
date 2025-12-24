@@ -1,4 +1,4 @@
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel, EmailStr, constr
 from enum import Enum
 from uuid import UUID
 from typing import Optional
@@ -10,23 +10,21 @@ class UserRole(str, Enum):
 
 class UserRead(BaseModel):
     id: UUID
-    username: str
     email: EmailStr
     role: UserRole
     created_at: datetime
     updated_at: datetime
 
-    class Config:
-        orm_mode = True
+    model_config = {
+        "from_attributes": True
+    }
 
 class UserCreate(BaseModel):
-    username: str
     email: EmailStr
-    password: str
+    password:  constr(min_length=8, max_length=50)
     role: Optional[UserRole] = UserRole.user
 
 class UserUpdate(BaseModel):
-    username: Optional[str]
     email: Optional[EmailStr]
     password: Optional[str]
     role: Optional[UserRole]
