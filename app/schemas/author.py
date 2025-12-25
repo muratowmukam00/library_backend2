@@ -10,8 +10,9 @@ class AuthorRead(BaseModel):
     created_at: datetime
     updated_at: datetime
 
-    class Config:
-        orm_mode = True
+    model_config = {
+        "from_attributes": True
+    }
 
 class AuthorCreate(BaseModel):
     name: str
@@ -20,3 +21,4 @@ class AuthorCreate(BaseModel):
 class AuthorUpdate(BaseModel):
     name: Optional[str]
     biography: Optional[str]
+

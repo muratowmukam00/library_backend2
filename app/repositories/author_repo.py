@@ -23,3 +23,10 @@ class AuthorRepository:
     def delete(self, author: Author):
         self.db.delete(author)
         self.db.commit()
+
+
+    def update(self, author: Author):
+        self.db.add(author)
+        self.db.commit()
+        self.db.refresh(author)
+        return author

@@ -5,7 +5,9 @@ from app.core import security
 from app.core.database import get_db
 from app.core.security import  bearer_scheme
 from app.models.user import UserRole
+from app.repositories.author_repo import AuthorRepository
 from app.repositories.user_repo import UserRepository
+from app.services.author_service import AuthorService
 from app.services.user_service import UserService
 
 
@@ -53,3 +55,7 @@ async def get_current_admin(
         )
 
     return current_user
+
+def get_author_service(db: Session = Depends(get_db)):
+    repo = AuthorRepository(db)
+    return AuthorService(repo)
