@@ -23,3 +23,8 @@ class BookRepository:
     def delete(self, book: Book):
         self.db.delete(book)
         self.db.commit()
+
+    def update(self, book: Book):
+        self.db.add(book)
+        self.db.commit()
+        return book

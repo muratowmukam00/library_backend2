@@ -12,8 +12,9 @@ class BookRead(BaseModel):
     created_at: datetime
     updated_at: datetime
 
-    class Config:
-        orm_mode = True
+    model_config = {
+        "from_attributes": True
+    }
 
 class BookCreate(BaseModel):
     title: str
@@ -21,6 +22,6 @@ class BookCreate(BaseModel):
     author_id: UUID
 
 class BookUpdate(BaseModel):
-    title: Optional[str]
-    description: Optional[str]
-    author_id: Optional[UUID]
+    title: Optional[str] = None
+    description: Optional[str] = None
+    author_id: Optional[UUID] = None
