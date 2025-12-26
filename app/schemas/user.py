@@ -10,6 +10,7 @@ class UserRole(str, Enum):
 
 class UserRead(BaseModel):
     id: UUID
+    full_name: str
     email: EmailStr
     role: UserRole
     created_at: datetime
@@ -20,10 +21,12 @@ class UserRead(BaseModel):
     }
 
 class UserCreate(BaseModel):
+    full_name: str
     email: EmailStr
     password:  constr(min_length=8, max_length=50)
 
 class UserUpdate(BaseModel):
-    email: Optional[EmailStr]
-    password: Optional[str]
-    role: Optional[UserRole]
+    full_name: Optional[str] = None
+    email: Optional[EmailStr] = None
+    password: Optional[str] = None
+    role: Optional[UserRole] = None

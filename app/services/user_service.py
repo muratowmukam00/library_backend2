@@ -6,9 +6,9 @@ class UserService:
     def __init__(self, user_repo: UserRepository):
         self.user_repo = user_repo
 
-    def create_user(self, email: str, password: str, role: str = "user"):
+    def create_user(self, full_name: str, email: str, password: str, role: str = "user") -> User:
         hashed_password = bcrypt.hash(password)
-        user = User(email=email, hashed_password=hashed_password, role=role)
+        user = User(full_name=full_name, email=email, hashed_password=hashed_password, role=role)
         return self.user_repo.create(user)
 
     def get_user(self, user_id):

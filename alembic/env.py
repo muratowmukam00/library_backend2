@@ -22,6 +22,7 @@ from app.models.base import Base
 from app.models.user import User
 from app.models.author import Author
 from app.models.book import Book
+from app.models.category import Category
 target_metadata = Base.metadata
 
 # other values from the config, defined by the needs of env.py,

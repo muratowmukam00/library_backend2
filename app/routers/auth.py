@@ -26,6 +26,7 @@ def register(user_in: UserCreate, user_service: UserService = Depends(get_user_s
 
 
     user = user_service.create_user(
+        full_name=user_in.full_name,
         email=user_in.email,
         password=user_in.password,
         role=role.value
