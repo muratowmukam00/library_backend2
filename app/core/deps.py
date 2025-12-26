@@ -12,6 +12,7 @@ from app.repositories.user_repo import UserRepository
 from app.services.author_service import AuthorService
 from app.services.book_service import BookService
 from app.services.category_service import CategoryService
+from app.services.storage_service import StorageService
 from app.services.user_service import UserService
 
 
@@ -66,7 +67,11 @@ def get_author_service(db: Session = Depends(get_db)):
 
 def get_book_service(db: Session = Depends(get_db)):
     repo = BookRepository(db)
-    return BookService(repo)
+    storage_service = StorageService()
+    return BookService(
+        book_repo=repo,
+        storage_service=storage_service
+    )
 
 def get_category_service(db: Session = Depends(get_db)):
     repo = CategoryRepository(db)

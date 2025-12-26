@@ -20,6 +20,7 @@ class BookCreate(BaseModel):
     title: str
     description: Optional[str]
     author_id: UUID
+    category_id: UUID
 
 class BookUpdate(BaseModel):
     title: Optional[str] = None
